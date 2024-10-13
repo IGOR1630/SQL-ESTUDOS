@@ -123,21 +123,18 @@ BEGIN
         WHERE id_bateria = @ID_BATERIA AND id_surfista = @ID_SURFISTA
 
 
-        IF @NOTA_FINAL_ONDA > @NOTA_FINAL_ONDA1_A
-        BEGIN
-   
-            UPDATE tb_ondas_placar
-            SET nota_final_onda1 = @NOTA_FINAL_ONDA
-            WHERE id_bateria = @ID_BATERIA AND id_surfista = @ID_SURFISTA
-        END
-        ELSE IF @NOTA_FINAL_ONDA > @NOTA_FINAL_ONDA2_A
-        BEGIN
-
-            UPDATE tb_ondas_placar
-            SET nota_final_onda2 = @NOTA_FINAL_ONDA
-            WHERE id_bateria = @ID_BATERIA AND id_surfista = @ID_SURFISTA
-        END
-
+       	IF @NOTA_FINAL_ONDA > @NOTA_FINAL_ONDA1_A OR @NOTA_FINAL_ONDA > @NOTA_FINAL_ONDA2_A
+		BEGIN
+			IF @NOTA_FINAL_ONDA1_A < @NOTA_FINAL_ONDA2_A
+				UPDATE tb_ondas_placar
+				SET nota_final_onda1 = @NOTA_FINAL_ONDA
+				WHERE id_bateria = @ID_BATERIA AND id_surfista = @ID_SURFISTA
+			ELSE
+				UPDATE tb_ondas_placar
+				SET nota_final_onda2 = @NOTA_FINAL_ONDA
+				WHERE id_bateria = @ID_BATERIA AND id_surfista = @ID_SURFISTA
+		END
+		
        
         FETCH C_ONDA INTO @ID_ONDA, @ID_BATERIA, @ID_SURFISTA, @NOTA_1, @NOTA_2, @NOTA_3, @NOTA_4
     END
@@ -151,13 +148,15 @@ WHERE id_surfista_1 = 10
 DROP TABLE tb_ondas_bateria
 SELECT * FROM tb_ondas_placar
 
+DROP TABLE tb_bateria
+DROP TABLE tb_ondas_placar
 SELECT * FROM tb_bateria
 
 SELECT * FROM tb_ondas_bateria
 SELECT * FROM tb_ondas_placar
 -- Testes
 
-INSERT INTO tb_ondas_placar VALUES (1,10,'Gabriel',0,0)
+
 insert into tb_bateria values (10,17)
 
 
@@ -166,6 +165,7 @@ insert into tb_ondas_bateria values (1, 10, 9, 9.5, 9.3, 9.2)
 
 -- Segunda onda Gabriel
 insert into tb_ondas_bateria values (1, 10, 5, 5, 5, 5)
+
 
 -- Terceira onda Gabriel
 insert into tb_ondas_bateria values (1, 10, 10, 10, 10, 10)
