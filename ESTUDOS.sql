@@ -182,4 +182,4 @@ insert into tb_ondas_bateria values (1, 17, 10, 10, 10, 10)
 
 
 
- 
+ --prova resolvida--
