@@ -87,17 +87,77 @@ CLOSE C_BATERIA
 DEALLOCATE C_BATERIA
 END
 
+CREATE OR ALTER TRIGGER ST_BATERIA_PLACAR_UPDATE 
+ON TB_ONDAS_BATERIA
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    DECLARE @ID_ONDA INT,
+            @ID_BATERIA INT,
+            @ID_SURFISTA INT,
+            @NOTA_1 NUMERIC(10,2),
+            @NOTA_2 NUMERIC(10,2),
+            @NOTA_3 NUMERIC (10,2),
+            @NOTA_4 NUMERIC(10,2),
+            @NOTA_FINAL_ONDA NUMERIC(10,2),
+            @NOTA_FINAL_ONDA1_A NUMERIC(10,2),
+            @NOTA_FINAL_ONDA2_A NUMERIC(10,2)
+
+
+    DECLARE C_ONDA CURSOR FOR 
+    SELECT ID_ONDA, ID_BATERIA, ID_SURFISTA, NOTA_1, NOTA_2, NOTA_3, NOTA_4 
+    FROM inserted
+
+    OPEN C_ONDA
+    FETCH C_ONDA INTO @ID_ONDA, @ID_BATERIA, @ID_SURFISTA, @NOTA_1, @NOTA_2, @NOTA_3, @NOTA_4
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN 
+
+        SET @NOTA_FINAL_ONDA = (@NOTA_1 + @NOTA_2 + @NOTA_3 + @NOTA_4) / 4
+        
+
+        SELECT @NOTA_FINAL_ONDA1_A = NOTA_FINAL_ONDA1, 
+               @NOTA_FINAL_ONDA2_A = NOTA_FINAL_ONDA2
+        FROM tb_ondas_placar
+        WHERE id_bateria = @ID_BATERIA AND id_surfista = @ID_SURFISTA
+
+
+        IF @NOTA_FINAL_ONDA > @NOTA_FINAL_ONDA1_A
+        BEGIN
+   
+            UPDATE tb_ondas_placar
+            SET nota_final_onda1 = @NOTA_FINAL_ONDA
+            WHERE id_bateria = @ID_BATERIA AND id_surfista = @ID_SURFISTA
+        END
+        ELSE IF @NOTA_FINAL_ONDA > @NOTA_FINAL_ONDA2_A
+        BEGIN
+
+            UPDATE tb_ondas_placar
+            SET nota_final_onda2 = @NOTA_FINAL_ONDA
+            WHERE id_bateria = @ID_BATERIA AND id_surfista = @ID_SURFISTA
+        END
+
+       
+        FETCH C_ONDA INTO @ID_ONDA, @ID_BATERIA, @ID_SURFISTA, @NOTA_1, @NOTA_2, @NOTA_3, @NOTA_4
+    END
+
+    CLOSE C_ONDA
+    DEALLOCATE C_ONDA
+END
 
 DELETE FROM tb_bateria
 WHERE id_surfista_1 = 10
-
+DROP TABLE tb_ondas_bateria
 SELECT * FROM tb_ondas_placar
 
 SELECT * FROM tb_bateria
 
+SELECT * FROM tb_ondas_bateria
 SELECT * FROM tb_ondas_placar
 -- Testes
 
+INSERT INTO tb_ondas_placar VALUES (1,10,'Gabriel',0,0)
 insert into tb_bateria values (10,17)
 
 
